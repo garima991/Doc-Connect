@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import userRouter from './src/routes/user.route.js';
+import doctorRouter from './src/routes/doctor.route.js';
+import adminRouter from './src/routes/admin.route.js'
 
 const app = express();
 
@@ -13,8 +15,8 @@ app.use(express.json());
 
 // API Endpoints
 app.use("/api/v1/user", userRouter);
-// app.use("/api/v1/admin", adminRouter);
-// app.use("/api/v1/doctor", doctorRouter);
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/doctor", doctorRouter);
 
 // Default route for testing
 app.get('/api/v1', (req, res) =>{
