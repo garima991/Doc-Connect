@@ -44,7 +44,7 @@ export const loginDoctor = async (req, res) => {
 
 export const doctorProfile = async (req, res) => {
     try {
-        const { docId } = req.body;
+        const docId = req.user._id;
         const profileData = await Doctor.findById(docId).select("-password");
         res.json({ success: true, profileData });
     } catch (error) {
@@ -62,7 +62,8 @@ export const doctorProfile = async (req, res) => {
 
 export const updateDoctorProfile = async (req, res) => {
     try {
-        const { docId, fees, address, available } = req.body;
+        const docId = req.user._id;
+        const { fees, address, available } = req.body;
         await Doctor.findByIdAndUpdate(docId, { fees, address, available });
         res.json({ success: true, message: "Profile Updated" });
     } catch (error) {
@@ -80,7 +81,7 @@ export const updateDoctorProfile = async (req, res) => {
 
 export const doctorAppointments = async (req, res) => {
     try {
-        const { docId } = req.body;
+        const docId = req.user._id;
         const appointments = await Appointment.find({ docId });
         res.status(200).json({ success: true, appointments });
     } catch (error) {
@@ -99,7 +100,8 @@ export const doctorAppointments = async (req, res) => {
 
 export const cancelAppointment = async (req, res) => {
     try {
-        const { docId, appointmentId } = req.body;
+        const docId = req.user._id;
+        const {appointmentId } = req.body;
         const appointmentData = await Appointment.findById(appointmentId);
 
         if (appointmentData && appointmentData.docId === docId) {
@@ -125,7 +127,8 @@ export const cancelAppointment = async (req, res) => {
 
 export const appointmentComplete = async (req, res) => {
     try {
-        const { docId, appointmentId } = req.body;
+        const docId = req.user._id;
+        const { appointmentId } = req.body;
         const appointmentData = await Appointment.findById(appointmentId);
 
         if (appointmentData && appointmentData.docId === docId) {
@@ -151,7 +154,7 @@ export const appointmentComplete = async (req, res) => {
 
 export const changeAvailability = async (req, res) => {
     try {
-        const { docId } = req.body;
+        const docId = req.body;
         const docData = await Doctor.findById(docId);
         await Doctor.findByIdAndUpdate(docId, {
             available: !docData.available,
@@ -189,7 +192,7 @@ export const doctorList = async (req, res) => {
 
 export const doctorDashboard = async (req, res) => {
     try {
-        const { docId } = req.body;
+       const docId = req.user._id;
         const appointments = await Appointment.find({ docId });
 
         let earnings = 0;

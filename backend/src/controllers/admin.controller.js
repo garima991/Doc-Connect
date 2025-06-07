@@ -1,7 +1,7 @@
 import { Doctor } from '../models/doctor.model.js';
 import { Appointment } from '../models/appointment.model.js';
 import { User } from '../models/user.model.js';
-import { hashPassword, generateToken } from '../utils/auth.js';
+import { hashPassword } from '../utils/auth.js';
 import validator from 'validator'
 import { v2 as cloudinary } from "cloudinary";
 
@@ -15,8 +15,16 @@ export const loginAdmin = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            const accessToken = await generateToken(email + password, process.env.ACCESS_TOKEN_SECRET_KEY);
-            res.status(200).json({ success: true, message : "Logged in successfully", accessToken })
+            const payload = {
+                email: process.env.ADMIN_EMAIL,
+                role: 'admin',
+            };
+
+            // Generate JWT token
+            const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET_KEY, {
+                expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_TIME,
+            });
+            res.status(200).json({ success: true, message: "Logged in successfully", accessToken })
         }
         else {
             res.status(401).json({ success: false, message: "Invalid Credentials" });
@@ -93,12 +101,12 @@ export const addDoctor = async (req, res) => {
             date: Date.now(),
         });
 
-        res.status(201).json({ success: true, message: "Doctor Added", doctorData});
+        res.status(201).json({ success: true, message: "Doctor Added", doctorData });
 
     }
 
     catch (error) {
-        res.status(500).json({ success: false, message: "Error while adding Doctor", error : error.message });
+        res.status(500).json({ success: false, message: "Error while adding Doctor", error: error.message });
     }
 
 }
@@ -128,7 +136,7 @@ export const allDoctors = async (req, res) => {
  * @route /admin/appointments
  */
 
-export const allAppointments = async () => {
+export const allAppointments = async (req, res) => {
     try {
         const appointments = await Appointment.find({});
         res.status(200).json({ success: true, message: "", appointments });
@@ -145,11 +153,11 @@ export const allAppointments = async () => {
  * @route /admin/cancel-appointment
  */
 
-export const cancelAppointment = async () => {
+export const cancelAppointment = async (req, res) => {
     try {
         const { appointmentId } = req.body;
 
-        const appointmentData = await Appointment.findById(appointmentId);
+        const {docId, slotDate, slotTime} = await Appointment.findById(appointmentId);
 
         await Appointment.findByIdAndUpdate(appointmentId, {
             cancelled: true,
@@ -180,7 +188,7 @@ export const cancelAppointment = async () => {
  * @route /admin/dashboard
  */
 
-export const adminDashboard = async () => {
+export const adminDashboard = async (req, res) => {
     try {
         const doctors = await Doctor.find({});
         const users = await User.find({});

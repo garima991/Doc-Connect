@@ -2,7 +2,7 @@ import validator from 'validator';
 import { User } from '../models/user.model.js';
 import { Appointment } from '../models/appointment.model.js';
 import { Doctor } from '../models/doctor.model.js';
-import { generateToken, hashPassword } from '../utils/auth.js';
+import { comparePassword, generateToken, hashPassword } from '../utils/auth.js';
 
 /**
  * @desc register a new user
@@ -94,10 +94,10 @@ export const loginUser = async (req, res) => {
 
 export const getProfile = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const useData = await User.findById(userId).select("-password");
+        const userId = req.user._id;
+        const userData = await User.findById(userId).select("-password");
 
-        res.json({ success: true, user: useData });
+        res.json({ success: true, user: userData });
     } catch (error) {
         res.json({ success: false, error: error.message });
     }
@@ -113,7 +113,8 @@ export const getProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const { userId, name, phone, address, dob, gender } = req.body;
+        const userId = req.user._id;
+        const { name, phone, address, dob, gender } = req.body;
         const imageFile = req.file;
 
         if (!name || !phone || !dob || !gender) {
@@ -154,7 +155,8 @@ export const updateProfile = async (req, res) => {
 
 export const bookAppointment = async (req, res) => {
     try {
-        const { userId, docId, slotDate, slotTime } = req.body;
+        const userId = req.user._id;
+        const { docId, slotDate, slotTime } = req.body;
 
         const docData = await Doctor.findById(docId).select("-password");
 
@@ -208,7 +210,7 @@ export const bookAppointment = async (req, res) => {
 
 export const getYourAppointments = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.user._id;
         const appointments = await Appointment.find({ userId });
         res.json({ success: true, appointments });
     } catch (error) {
@@ -226,7 +228,8 @@ export const getYourAppointments = async (req, res) => {
 
 export const cancelAppointment = async (req, res) => {
     try {
-        const { userId, appointmentId } = req.body;
+        const userId = req.user._id;
+        const { appointmentId } = req.body;
 
         const appointmentData = await Appointment.findById(appointmentId);
 

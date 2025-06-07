@@ -18,6 +18,7 @@ export const generateToken = (payload) => {
         _id : payload._id,
         name: payload.name,
         email: payload.email,
+        role: payload.role,
     }, 
     process.env.ACCESS_TOKEN_SECRET_KEY,
         { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_TIME });

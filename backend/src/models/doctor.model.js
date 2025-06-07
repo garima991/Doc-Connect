@@ -53,6 +53,10 @@ const doctorSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    role: {
+        type: String,
+        default: 'doctor'
+    }
 }, {
     timestamps: true,
     minimize: false  // to keep the empty objects
